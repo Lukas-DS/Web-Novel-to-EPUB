@@ -1,0 +1,8 @@
+*.json
+*.zip
+*.epub
+*.pyc
+*.png
+*.jpg
+*.gif
+__pycache__/
