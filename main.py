@@ -66,15 +66,15 @@ def print_bar(current_index, digits):
     return append + str(current_index)
 
 
-def parse_worker(zfo, chn):
+def parse_worker(zfo, chn, parser, blacklist):
     print(f"parsing chap: {print_bar(chn, 5)}", end="\r")
     filename = f"{chn}.chapter"
     html = zfo.read(filename).decode("utf-8")
-    title, body = parser.parse_chapter(html, BLACKLIST_RE)
+    title, body = parser.parse_chapter(html, blacklist)
     return chn, title, body
 
 
-def parsing(zip_name_A, zip_name_B, metadata, keys):
+def parsing(zip_name_A, zip_name_B, metadata, keys, parser, blacklist):
     """
     Takes in:
         zip_name_A: location of zip file with raw chapter html
@@ -91,7 +91,7 @@ def parsing(zip_name_A, zip_name_B, metadata, keys):
     ) as zfn:
 
         with ThreadPoolExecutor(max_workers=8) as pool:
-            futures = [pool.submit(parse_worker, zfo, chn) for chn in keys]
+            futures = [pool.submit(parse_worker, zfo, chn, parser, blacklist) for chn in keys]
 
             for fut in as_completed(futures):
                 chn, title, body = fut.result()
@@ -102,7 +102,7 @@ def parsing(zip_name_A, zip_name_B, metadata, keys):
     return metadata
 
 
-def dl_chapter(i, zf, links):
+def dl_chapter(i, zf, links, parser, zip_lock):
     """Downloads chapter i from homepage['links'] writes it into zip file zf"""
     print(f"Downloading CH: {print_bar(i, 5)}", end="\r")
 
@@ -282,7 +282,7 @@ def main():
             with ThreadPoolExecutor(max_workers=parser.max_clients) as executor:
                 list(
                     executor.map(
-                        lambda i: dl_chapter(i, zf, homepage["links"]), keys_to_download
+                        lambda i: dl_chapter(i, zf, homepage["links"], parser, zip_lock), keys_to_download
                     )
                 )
     print()
@@ -351,7 +351,7 @@ def main():
     elif args.no_parse:
         print("Skipping parse (could cause errors)")
     else:
-        metadata = parsing(zip_name_A, zip_name_B, metadata, keys_to_parse)
+        metadata = parsing(zip_name_A, zip_name_B, metadata, keys_to_parse, parser, BLACKLIST_RE)
 
     print("-----------")
 
