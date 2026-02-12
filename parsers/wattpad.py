@@ -63,16 +63,23 @@ class WattpadParser(Parser):
         soup = BeautifulSoup(html, "lxml")
 
         ch_title = soup.find("h1", {"class": "h2"}).get_text(strip=True)
+        
+        # Paywall check
+        if soup.find("div", {"class": "paywall-container"}):
+            # paywalled chapter
+            lines = ["Paywalled Chapter", "Find chapter on wattpad.com", "owned chapter support coming soon"]
 
-        body = soup.find("div", {"class": "first-page"}).find("pre")
-        bstr = ""
-        for b in body:
-            bstr += b.get_text().strip() + "\n"
+        else:
+            # free chapter
+            body = soup.find("div", {"class": "first-page"}).find("pre")
+            bstr = ""
+            for b in body:
+                bstr += b.get_text().strip() + "\n"
 
-        # Removing blacklisted text
-        bstr = blacklist.sub("", bstr)
-        cleaned_body = bstr.strip()
+            # Removing blacklisted text
+            bstr = blacklist.sub("", bstr)
+            cleaned_body = bstr.strip()
 
-        lines = [l.strip() for l in cleaned_body.splitlines() if l.strip()]
+            lines = [l.strip() for l in cleaned_body.splitlines() if l.strip()]
 
         return ch_title, lines
