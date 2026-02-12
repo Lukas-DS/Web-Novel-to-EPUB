@@ -95,12 +95,15 @@ def parsing(zip_name_A, zip_name_B, metadata, keys, parser, blacklist):
 
             for fut in as_completed(futures):
                 chn, title, body = fut.result()
-                zfn.writestr(f"{chn}.chapter", body)
+                zfn.writestr(f"{chn}.chapter", body_list_to_html(title, body))
                 metadata[chn] = title
     print()
     print("finished parsing")
     return metadata
 
+def body_list_to_html(title, body):
+    body_html = f"<h1>{title}</h1>\n" "<p>" + "</p><p>".join(body) + "</p>"
+    return body_html
 
 def dl_chapter(i, zf, links, parser, zip_lock):
     """Downloads chapter i from homepage['links'] writes it into zip file zf"""
@@ -408,14 +411,9 @@ def main():
             else:
                 filename = f"{i}.chapter"
                 html = zf.read(filename).decode("utf-8")
-                soup = BeautifulSoup(html, "lxml")
-
-                # might be able to reduce cause I just noticed I already do this is chap parser
-                ch_b = f"<h1>{metadata[str(i)]}</h1>" + "".join(
-                    [str(p) for p in soup.find_all("p")]
-                )
-
+                ch_b = html
                 ch_t = metadata[str(i)]
+
             ch = epub.EpubHtml(title=ch_t, file_name=f"{i}.xhtml")
             ch.content = ch_b
             book.add_item(ch)

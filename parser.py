@@ -43,7 +43,7 @@ class Parser(ABC):
     def parse_chapter(self, html, blacklist):
         """
         Takes in raw chapter HTML, and Re.Pattern object
-        Return tuple: (chapter_title, chapter_body)
-        see: example parser in parsers/ for format of chapter_body
+        Return tuple: (chapter_title, body_list)
+        body_list contains each line or portion of text that should be contained within a <p> tag as each row
         """
         pass

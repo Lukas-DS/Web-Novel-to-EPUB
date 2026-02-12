@@ -91,6 +91,4 @@ class LightNovelWorldParser(Parser):
 
         lines = [l.strip() for l in cleaned_body.splitlines() if l.strip()]
 
-        body_html = f"<h1>{ch_title}</h1>\n" "<p>" + "</p><p>".join(lines) + "</p>"
-
-        return ch_title, body_html
+        return ch_title, lines
