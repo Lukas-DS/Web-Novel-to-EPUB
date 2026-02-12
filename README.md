@@ -1,4 +1,4 @@
-# Web Novel and Story EPUB
+# Web Novel and Story to EPUB Archive
 Modular multithreaded online novel parser and downloader. This tool converts popular websites to a locally stored epub ebook file.
 
 ## Features
