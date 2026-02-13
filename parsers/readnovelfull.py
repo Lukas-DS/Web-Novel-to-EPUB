@@ -15,6 +15,8 @@ class ReadNovelFullParser(Parser):
         return req if raw else req.text
 
     def _link_to_num(self, link):
+        if "/prologue.html" in link:
+            return 0
         match = re.findall(r"(\d+)", link)[0]
         return int(match)
 
