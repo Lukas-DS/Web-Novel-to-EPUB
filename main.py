@@ -10,14 +10,10 @@ import importlib, pkgutil, inspect, modules
 import parsers
 from parser import Parser
 
-
-def get_parser(identifier):
-    """
-    Imports all parsers, finds parser required
-    """
+def get_parsers():
+    """Imports all parsers and returns a list of class names"""
     classes = []
-
-    # scanning through the "package" in parsers/
+        # scanning through the "package" in parsers/
     for _, module_name, _ in pkgutil.iter_modules(parsers.__path__):
         module = importlib.import_module(f"{parsers.__name__}.{module_name}")
 
@@ -32,13 +28,21 @@ def get_parser(identifier):
                 and not inspect.isabstract(obj)
             ):
                 classes.append(obj)
+    return classes
+
+def get_parser(identifier):
+    """
+    finds parser required from list of parsers
+    """
+    classes = get_parsers()
+
     # check to compare identifier and class name
     for c in classes:
         if c.name in identifier:
             return c
 
     # attribute error if no matches
-    raise AttributeError(f"Module '{module.__name__}' no matching classes")
+    raise AttributeError(f"no matching classes")
 
 
 def path_setup(base, novel_title, parser_name):
@@ -127,6 +131,12 @@ def get_args():
     parser.add_argument("url", help="The homepage URL of the novel")
 
     parser.add_argument(
+        "--parsers",
+        action="store_true",
+        help="List all the parsers currently available",
+    )
+
+    parser.add_argument(
         "-o",
         "--output",
         default="novel_out",
@@ -182,6 +192,11 @@ def main():
     zip_lock = Lock()
 
     args = get_args()
+    
+    if args.parsers:
+        for parser in get_parsers():
+            print(parser.name)
+        sys.exit(1)
 
     ParserClass = get_parser(args.url)
     parser = ParserClass()
